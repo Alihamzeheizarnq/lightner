@@ -2,7 +2,6 @@
 
 namespace App\Contracts\Api\V1;
 
-use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 
 interface AuthControllerDoc
