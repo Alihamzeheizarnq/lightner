@@ -26,7 +26,6 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'balance',
     ];
 
     /**
@@ -48,21 +47,6 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
-    /**
-     * @return User
-     */
-    public static function getSystemUser(): User
-    {
-        return static::firstOrCreate(['id' => 1], [
-            'name' => 'alihamzehei',
-            'email' => 'alihamzehei2017@gmail.com',
-            'email_verified_at' => now(),
-            'password' => bcrypt('aH13791379'),
-            'remember_token' => Str::random(10),
-        ]);
-    }
-
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -81,58 +65,5 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
-    }
-
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    public function updateBalance(): Collection
-    {
-        $totalAmount = $this->transactions()
-            ->select('currency_key', DB::raw('SUM(amount) as total_amount'))
-            ->groupBy('currency_key')
-            ->pluck('total_amount', 'currency_key');
-
-        $this->update([
-            'balance' => json_encode($totalAmount->jsonSerialize()),
-        ]);
-
-
-        return $totalAmount;
-    }
-
-    /**
-     * getBalance
-     *
-     * @param Currency $currency
-     * @return int
-     */
-    public function getBalance(Currency $currency): int
-    {
-        return $this->transactions()
-            ->where('currency_key', $currency->key)
-            ->sum('amount');
-    }
-
-    /**
-     * cureencies
-     *
-     * @return HasMany
-     */
-    public function cureencies(): HasMany
-    {
-        return $this->hasMany(Currency::class);
-    }
-
-    /**
-     * payments
-     *
-     * @return HasMany
-     */
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
     }
 }

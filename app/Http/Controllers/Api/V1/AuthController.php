@@ -29,7 +29,7 @@ class AuthController extends Controller implements AuthControllerDoc
      */
     public function login(): JsonResponse
     {
-        $credentials = request(['email', 'password']);
+        $credentials = request(['mobile']);
 
         if (!$token = auth()->attempt($credentials)) {
             throw new UnauthorizedException();
@@ -38,32 +38,6 @@ class AuthController extends Controller implements AuthControllerDoc
         return $this->respondWithToken($token);
     }
 
-    /**
-     * register
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function register(Request $request): JsonResponse
-    {
-        $request->validate(
-            [
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-            ]
-        );
-
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-        ]);
-
-        return apiResponse()
-            ->data($user)
-            ->send();
-    }
 
     /**
      * Get the authenticated User.
