@@ -3,6 +3,7 @@
 namespace App\Contracts\Api\V1;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 interface AuthControllerDoc
 {
@@ -24,7 +25,7 @@ interface AuthControllerDoc
      *        @OA\Response(response=404,description="Resource Not Found")
      * )
      */
-    public function login(): JsonResponse;
+    public function login(Request $request): JsonResponse;
     /**
      * @OA\Get(
      *     path="/api/v1/auth/me",

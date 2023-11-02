@@ -9,6 +9,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
@@ -51,6 +52,12 @@ class Handler extends ExceptionHandler
             return apiResponse()
                 ->message("Does not exist any {$model}")
                 ->send(Response::HTTP_NOT_FOUND);
+        }
+
+        if ($exception instanceof BadRequestException) {
+            return apiResponse()
+                ->message($exception->getMessage())
+                ->send(Response::HTTP_BAD_REQUEST);
         }
 
         if ($exception instanceof AuthorizationException) {

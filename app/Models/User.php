@@ -25,7 +25,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
-        'password',
+        'mobile',
     ];
 
     /**
@@ -47,6 +47,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -58,6 +59,23 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * @throws \Exception
+     */
+    public function generateOpt(): Opt
+    {
+        $dateTime = now()->subMinutes(3)->toDateTimeString();
+
+        return $this->opts()
+            ->where('expired_at', '>=', $dateTime)
+            ->first()
+            ?: $this->opts()
+                ->create([
+                    'code' => $this->getOpts(),
+                    'expired_at' => now()->addMinutes(3)->toDateTimeString(),
+                ]);
+    }
+
+    /**
      * Return a key value array, containing any custom claims to be added to the JWT.
      *
      * @return array
@@ -65,5 +83,24 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
+    }
+
+    public function opts(): HasMany
+    {
+        return $this->hasMany(Opt::class);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getOpts(): int
+    {
+        do {
+            $code = generateUniqueNumber(6);
+
+            $optExists = Opt::where('code', $code)->exists();
+        } while ($optExists);
+
+        return $code;
     }
 }

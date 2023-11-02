@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Contracts\Api\V1\AuthControllerDoc;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OptResource;
+use App\Models\Opt;
+use App\Models\User;
+use App\Rules\CheckPhoneNumber;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller implements AuthControllerDoc
 {
@@ -16,23 +23,26 @@ class AuthController extends Controller implements AuthControllerDoc
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'verify']]);
     }
 
     /**
      * Get a JWT via given credentials.
      *
      * @return JsonResponse
+     * @throws \Exception
      */
-    public function login(): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $credentials = request(['mobile']);
+        $data = $request->validate([
+            'mobile' => ['required', new CheckPhoneNumber()],
+        ]);
 
-        if (!$token = auth()->attempt($credentials)) {
-            throw new AuthenticationException();
-        }
+        $user = User::firstOrCreate($data);
 
-        return $this->respondWithToken($token);
+        return apiResponse()
+            ->data(new OptResource($user->generateOpt()))
+            ->send();
     }
 
 
@@ -72,6 +82,25 @@ class AuthController extends Controller implements AuthControllerDoc
         return $this->respondWithToken(auth()->refresh());
     }
 
+    public function verify(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => ['required', 'exists:opts'],
+        ]);
+
+        $dateTime = now()->subMinutes(3)->toDateTimeString();
+
+        $opt = Opt::where('code', $request->code)
+            ->where('expired_at', '>=', $dateTime)
+            ->first();
+
+        if ( ! $opt) {
+            throw new BadRequestException('کد ارسال شده معتبر نمی باشد.');
+        }
+
+        return $this->respondWithToken(auth()->login($opt->user));
+    }
+
     /**
      * Get the token array structure.
      *
@@ -86,7 +115,7 @@ class AuthController extends Controller implements AuthControllerDoc
                 [
                     'access_token' => $token,
                     'token_type' => 'bearer',
-                    'expires_in' => auth()->factory()->getTTL() * 60
+                    'expires_in' => auth()->factory()->getTTL() * 60,
                 ]
             )->send();
     }

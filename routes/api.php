@@ -18,9 +18,10 @@ Route::group([
     'prefix' => 'v1/auth',
 ], function ($router) {
     $router->post('login', [AuthController::class, 'login']);
+    $router->post('verify', [AuthController::class, 'verify']);
     $router->post('logout', [AuthController::class, 'logout']);
     $router->post('refresh', [AuthController::class, 'refresh']);
-    $router->post('me', [AuthController::class, 'me']);
+    $router->get('me', [AuthController::class, 'me']);
 });
 
 
