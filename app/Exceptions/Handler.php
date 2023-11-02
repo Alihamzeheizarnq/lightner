@@ -32,8 +32,10 @@ class Handler extends ExceptionHandler
     {
     }
 
-    public function render($request, $exception): Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    {
+    public function render(
+        $request,
+        $exception
+    ): Response|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\Response {
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
             $message = Response::$statusTexts[$statusCode];

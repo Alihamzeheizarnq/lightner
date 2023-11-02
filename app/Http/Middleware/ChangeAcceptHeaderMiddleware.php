@@ -18,6 +18,7 @@ class ChangeAcceptHeaderMiddleware
         $request->headers->add([
             'Accept' => 'application/json'
         ]);
+
         return $next($request);
     }
 }
