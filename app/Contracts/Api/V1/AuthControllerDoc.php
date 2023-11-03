@@ -15,9 +15,8 @@ interface AuthControllerDoc
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"email", "password"},
-     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="password123")
+     *             required={"mobile"},
+     *             @OA\Property(property="mobile", type="integer", example="09124567898"),
      *         )
      *     ),
      *        @OA\Response(response=200,description="Successful operation"),
@@ -68,4 +67,22 @@ interface AuthControllerDoc
      */
     public function refresh(): JsonResponse;
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/verify",
+     *     tags={"Auth"},
+     *     summary="Login to get JWT token",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"code"},
+     *             @OA\Property(property="code", type="ineger", format="text", example="123456"),
+     *         )
+     *     ),
+     *        @OA\Response(response=200,description="Successful operation"),
+     *        @OA\Response(response=400,description="Bad Request"),
+     *        @OA\Response(response=404,description="Resource Not Found")
+     * )
+     */
+    public function verify(Request $request): JsonResponse;
 }
