@@ -8,11 +8,10 @@ use App\Http\Resources\OptResource;
 use App\Models\Opt;
 use App\Models\User;
 use App\Rules\CheckPhoneNumber;
-use Illuminate\Auth\AuthenticationException;
+use App\Services\Sms\Sms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller implements AuthControllerDoc
 {
@@ -40,8 +39,14 @@ class AuthController extends Controller implements AuthControllerDoc
 
         $user = User::firstOrCreate($data);
 
+        $otp = $user->generateOpt();
+
+        $status = Sms::send($user, 146184, $otp->code);
+
         return apiResponse()
-            ->data(new OptResource($user->generateOpt()))
+            ->data([
+                'status' => $status
+            ])
             ->send();
     }
 

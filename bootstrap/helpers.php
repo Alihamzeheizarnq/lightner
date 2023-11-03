@@ -33,6 +33,10 @@ if ( ! function_exists('generateUniqueNumber')) {
         }
 
 
-        return $randomDigitNumber;
+        if (strlen($randomDigitNumber) === $length){
+            return $randomDigitNumber;
+        }
+
+        return generateUniqueNumber($length);
     }
 }
