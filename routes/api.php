@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MessageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,5 +30,5 @@ Route::group([
     'middleware' => ['auth'],
     'prefix' => 'v1',
 ], function ($router) {
-
+    $router->apiResource('messages' , MessageController::class);
 });
