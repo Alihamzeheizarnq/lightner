@@ -103,4 +103,9 @@ class User extends Authenticatable implements JWTSubject
 
         return $code;
     }
+
+    public function card()
+    {
+        return $this->hasOne(Card::class);
+    }
 }
