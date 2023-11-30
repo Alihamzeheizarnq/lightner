@@ -11,6 +11,7 @@ use App\Rules\CheckPhoneNumber;
 use App\Services\Sms\Sms;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class AuthController extends Controller implements AuthControllerDoc
@@ -74,6 +75,21 @@ class AuthController extends Controller implements AuthControllerDoc
 
         return apiResponse()
             ->message(__('auth.messages.successfully_logout'))
+            ->send();
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['nullable' , 'email' , Rule::unique('users')->ignore(auth()->user()->id)],
+            'name' => ['nullable' , 'string' , 'max:255']
+        ]);
+
+        auth()->user()->update($validated);
+
+
+        return apiResponse()
+            ->data(auth()->user())
             ->send();
     }
 
