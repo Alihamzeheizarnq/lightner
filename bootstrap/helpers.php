@@ -22,21 +22,24 @@ if ( ! function_exists('generateUniqueNumber')) {
      * @return int
      * @throws Exception
      */
-    function generateUniqueNumber(int $length = 20): int
+    function generateUniqueNumber(int $length = 10): int
     {
-        $uniqueNumber = str_shuffle(time().random_int(111111111, 999999999));
+        do {
+            $length = max(1, $length);
 
-        $randomDigitNumber = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomDigit = substr($uniqueNumber, rand(0, strlen($uniqueNumber) - 1), 1);
-            $randomDigitNumber .= $randomDigit;
-        }
+            $min = pow(10, $length - 1);
+            $max = pow(10, $length) - 1;
 
+            $microTime = str_replace('.', '', microtime(true));
+            $uniqueId = random_int(11111111, 99999999).(hexdec(uniqid()) % ($max - $min + 1)).$microTime;
 
-        if (strlen($randomDigitNumber) === $length){
-            return $randomDigitNumber;
-        }
+            $digits = str_split($uniqueId);
 
-        return generateUniqueNumber($length);
+            shuffle($digits);
+
+            $uniqueId = substr(implode('', $digits), 0, $length);
+        } while (str_starts_with($uniqueId, '0') or strlen($uniqueId) > $length or strlen($uniqueId) < $length);
+
+        return $uniqueId;
     }
 }
